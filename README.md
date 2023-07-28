@@ -1,5 +1,5 @@
 # Segment Tumour
-An automated tumour segmentation pipeline, using Pytorch
+An automated tumour classification pipeline, using Pytorch
 
 ## 
 Placeholder for project details and instructions
@@ -22,7 +22,7 @@ Create a brain tumour segmentation pipeline utilising pytorch.
 ---
 Goals 
 ---
-- Create a tumour segmenter with >80% accuracy
+- Create a tumour classifier with >80% accuracy
 - Ensure test-driven development
 - Deadline - 28/07/2023
 
