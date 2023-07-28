@@ -1,0 +1,79 @@
+2023-07-28 11:35:28 [INFO] - Start training...
+2023-07-28 11:37:41 [INFO] - Start training...
+2023-07-28 11:39:04 [INFO] - Epoch 1 - Training Loss: 22.04119404502537
+2023-07-28 11:39:43 [INFO] - Epoch 1 - Validation Loss: 2.6921669265086
+2023-07-28 11:41:07 [INFO] - Epoch 2 - Training Loss: 2.2687818731950675
+2023-07-28 11:41:48 [INFO] - Epoch 2 - Validation Loss: 1.4187377636897673
+2023-07-28 11:43:08 [INFO] - Epoch 3 - Training Loss: 1.6468248334915743
+2023-07-28 11:43:46 [INFO] - Epoch 3 - Validation Loss: 1.768536337630146
+2023-07-28 11:45:04 [INFO] - Epoch 4 - Training Loss: 1.385497094658406
+2023-07-28 11:45:42 [INFO] - Epoch 4 - Validation Loss: 1.3125332903794267
+2023-07-28 11:47:36 [INFO] - Epoch 5 - Training Loss: 1.372025819900243
+2023-07-28 11:48:19 [INFO] - Epoch 5 - Validation Loss: 1.0745462529144292
+2023-07-28 11:49:36 [INFO] - Epoch 6 - Training Loss: 1.0088788530100947
+2023-07-28 11:50:13 [INFO] - Epoch 6 - Validation Loss: 0.9224295507777821
+2023-07-28 11:51:31 [INFO] - Epoch 7 - Training Loss: 0.7755638328583344
+2023-07-28 11:52:08 [INFO] - Epoch 7 - Validation Loss: 0.8795831430831785
+2023-07-28 11:53:38 [INFO] - Epoch 8 - Training Loss: 0.8605474601297275
+2023-07-28 11:54:19 [INFO] - Epoch 8 - Validation Loss: 0.9247296617249958
+2023-07-28 11:55:41 [INFO] - Epoch 9 - Training Loss: 0.9703047307127196
+2023-07-28 11:56:30 [INFO] - Epoch 9 - Validation Loss: 1.1995136871171945
+2023-07-28 11:58:00 [INFO] - Epoch 10 - Training Loss: 0.774099142898036
+2023-07-28 11:58:44 [INFO] - Epoch 10 - Validation Loss: 0.8820280844030838
+2023-07-28 11:58:44 [INFO] - Model saved.
+2023-07-28 11:59:03 [INFO] - Test Accuracy: 77.96%
+2023-07-28 14:06:01 [INFO] - Start training...
+2023-07-28 14:12:21 [INFO] - Epoch 1 - Training Loss: 1.0459577446101143
+2023-07-28 14:14:23 [INFO] - Epoch 1 - Validation Loss: 0.6986593451670238
+2023-07-28 14:21:10 [INFO] - Epoch 2 - Training Loss: 0.6935292304050727
+2023-07-28 14:22:57 [INFO] - Epoch 2 - Validation Loss: 0.6874774951168469
+2023-07-28 14:22:59 [INFO] - Model saved.
+2023-07-28 14:24:56 [INFO] - Start training...
+2023-07-28 14:32:27 [INFO] - Epoch 1 - Training Loss: 0.9702140480442777
+2023-07-28 14:34:26 [INFO] - Epoch 1 - Validation Loss: 0.6813588455851589
+2023-07-28 14:41:22 [INFO] - Epoch 2 - Training Loss: 0.7039446345443934
+2023-07-28 14:43:21 [INFO] - Epoch 2 - Validation Loss: 0.6939333666009563
+2023-07-28 14:43:23 [INFO] - Model saved.
+2023-07-28 14:45:22 [INFO] - Start training...
+2023-07-28 14:52:08 [INFO] - Epoch 1 - Training Loss: 1.0466486981006269
+2023-07-28 14:54:07 [INFO] - Epoch 1 - Validation Loss: 0.7503208528246198
+2023-07-28 15:01:02 [INFO] - Epoch 2 - Training Loss: 0.748106080163372
+2023-07-28 15:03:08 [INFO] - Epoch 2 - Validation Loss: 0.6178361958265305
+2023-07-28 15:03:10 [INFO] - Model saved.
+2023-07-28 15:05:09 [INFO] - Start training...
+2023-07-28 15:10:33 [INFO] - Epoch 1 - Training Loss: 1.0879382646602134
+2023-07-28 15:12:25 [INFO] - Epoch 1 - Validation Loss: 0.8328847557475622
+2023-07-28 15:17:36 [INFO] - Epoch 2 - Training Loss: 0.7161444885575253
+2023-07-28 15:19:21 [INFO] - Epoch 2 - Validation Loss: 0.6987131933935664
+2023-07-28 15:19:23 [INFO] - Model saved.
+2023-07-28 15:21:15 [INFO] - Start training...
+2023-07-28 15:26:52 [INFO] - Epoch 1 - Training Loss: 1.0813102842025135
+2023-07-28 15:28:42 [INFO] - Epoch 1 - Validation Loss: 0.827991031872278
+2023-07-28 15:34:11 [INFO] - Epoch 2 - Training Loss: 0.7486723658183346
+2023-07-28 15:36:01 [INFO] - Epoch 2 - Validation Loss: 0.5788970677690073
+2023-07-28 15:36:03 [INFO] - Model saved.
+2023-07-28 15:37:51 [INFO] - Start training...
+2023-07-28 15:43:14 [INFO] - Epoch 1 - Training Loss: 1.0672799607981807
+2023-07-28 15:45:02 [INFO] - Epoch 1 - Validation Loss: 0.7511837905780836
+2023-07-28 15:50:47 [INFO] - Epoch 2 - Training Loss: 0.7655299626614737
+2023-07-28 15:52:47 [INFO] - Epoch 2 - Validation Loss: 0.6267163432626561
+2023-07-28 15:52:50 [INFO] - Model saved.
+2023-07-28 15:55:21 [INFO] - Start training...
+2023-07-28 16:01:04 [INFO] - Epoch 1 - Training Loss: 1.042095440885295
+2023-07-28 16:03:02 [INFO] - Epoch 1 - Validation Loss: 0.7527777803215113
+2023-07-28 16:08:51 [INFO] - Epoch 2 - Training Loss: 0.7343199330827465
+2023-07-28 16:10:50 [INFO] - Epoch 2 - Validation Loss: 0.6342915201728995
+2023-07-28 16:10:51 [INFO] - Model saved.
+2023-07-28 16:12:57 [INFO] - Start training...
+2023-07-28 16:18:41 [INFO] - Epoch 1 - Training Loss: 1.1596306082995043
+2023-07-28 16:20:47 [INFO] - Epoch 1 - Validation Loss: 0.861828971315514
+2023-07-28 16:26:13 [INFO] - Epoch 2 - Training Loss: 0.7780874533497769
+2023-07-28 16:27:58 [INFO] - Epoch 2 - Validation Loss: 0.6456559632312168
+2023-07-28 16:28:00 [INFO] - Model saved.
+2023-07-28 16:29:42 [INFO] - Start training...
+2023-07-28 16:35:03 [INFO] - Epoch 1 - Training Loss: 1.1929893921250883
+2023-07-28 16:37:04 [INFO] - Epoch 1 - Validation Loss: 0.8043435358188369
+2023-07-28 16:42:20 [INFO] - Epoch 2 - Training Loss: 0.8430015211519988
+2023-07-28 16:44:28 [INFO] - Epoch 2 - Validation Loss: 0.6757491549307649
+2023-07-28 16:44:29 [INFO] - Model saved.
+Best Batch Size: 32, Best Dropout Rate: 0.4, Best Validation Loss: 0.5847158596258272
