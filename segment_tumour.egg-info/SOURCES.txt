@@ -1,0 +1,9 @@
+LICENSE
+README.md
+setup.py
+segment_tumour.egg-info/PKG-INFO
+segment_tumour.egg-info/SOURCES.txt
+segment_tumour.egg-info/dependency_links.txt
+segment_tumour.egg-info/top_level.txt
+tests/__init__.py
+tests/test_functions.py
