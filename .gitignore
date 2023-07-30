@@ -1,0 +1,3 @@
+# Ignore model.pth file - too large to store on git
+model.pth
+
