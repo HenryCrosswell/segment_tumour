@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 from pathlib import Path
-from functions import make_val_dataset, CNNModel, get_data_loaders, TumourSegmentationTrainer, BrainTumourDataset, test_model
+from functions import make_val_dataset, get_data_loaders, BrainTumourDataset
+from model import CNNModel, TumourSegmentationTrainer, test_model
 import logging
 import os
 import json
