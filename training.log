@@ -325,3 +325,4 @@ Best Batch Size: 32, Best Dropout Rate: 0.4, Best Validation Loss: 0.58471585962
 2023-07-30 01:32:30 [INFO] - Test Accuracy: 71.47%
 2023-07-30 10:22:40 [INFO] - Test Accuracy: 73.00%
 2023-07-30 10:29:18 [INFO] - Test Accuracy: 72.54%
+2023-07-30 12:37:22 [INFO] - Start training...
