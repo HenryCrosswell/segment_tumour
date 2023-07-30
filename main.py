@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 from pathlib import Path
-from functions import make_val_dataset, CNNModel, get_data_loaders, TumourSegmentationTrainer, BrainTumourDataset
+from functions import make_val_dataset, CNNModel, get_data_loaders, TumourSegmentationTrainer, BrainTumourDataset, test_model
 import logging
-from itertools import product
+import os
+import json
 
+# Logging basics
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] - %(message)s',
@@ -15,68 +17,72 @@ logging.basicConfig(
     ]
 )
 
-# Set up paths and parameters
+# Working paths, used throughout main.py
 current_working_directory = Path.cwd()
-test_path = current_working_directory.joinpath('archive', 'Testing')
-training_path = current_working_directory.joinpath('archive', 'Training')
-validation_path = current_working_directory.joinpath('archive', 'Validation')
-data_folder = current_working_directory.joinpath('archive')
+archive_path = current_working_directory.joinpath('archive')
+validation_path = archive_path.joinpath('Validation')
+test_path = archive_path.joinpath('Testing')
+training_path = archive_path.joinpath('Training')
 
+# If validation folder is not present, it moves 20% of training images for the validation set
+if not os.path.exists(validation_path):
+    print("Validation folder not found. Creating it...")
+    make_val_dataset(archive_path, validation_ratio=0.2)
+    print("Validation folder created.")
+else:
+    print("Validation folder already exists.")
+
+# Initialize parameters
 val_split = 0.1
 num_epochs = 2
 num_classes = 4
 learning_rate = 0.001
 
+train_loader, val_loader, test_loader = get_data_loaders(training_path, validation_path, test_path, batch_size=32)
 
-batch_sizes = [16, 32, 64]
-dropout_rates = [0.2, 0.4, 0.6]
+# Check if the model.pth exists and load it, otherwise perform hyperparameter search
+checkpoint_path = current_working_directory.joinpath('model.pth')
+hyperparameters_path = current_working_directory.joinpath('hyperparameters.json')
 
-hyperparameter_combinations = []
-for batch_size in batch_sizes:
-    for dropout_rate in dropout_rates:
-        combination = {'batch_size': batch_size, 'dropout_rate': dropout_rate}
-        hyperparameter_combinations.append(combination)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-best_batch_size = None
-best_dropout_rate = None
-best_validation_loss = float('inf')
+if os.path.exists(checkpoint_path) and os.path.exists(hyperparameters_path):
+    print("Existing model and hyperparameters found. Loading them...")
+    # Load hyperparameters from the JSON file
+    with open(hyperparameters_path, 'r') as f:
+        hyperparameters = json.load(f)
+    batch_size = hyperparameters["batch_size"]
+    dropout_rate = hyperparameters["dropout_rate"]
+    learning_rate = hyperparameters["learning_rate"]
 
-# Grid search for hyperparameter tuning
-for combination in hyperparameter_combinations:
-    batch_size = combination['batch_size']
-    dropout_rate = combination['dropout_rate']
+    model = CNNModel(num_classes, dropout_rate=dropout_rate)
+    model.load_state_dict(torch.load(checkpoint_path))
 
-    # Step 2: Prepare data loaders with the specified batch size
-    train_loader, val_loader, test_loader = get_data_loaders(training_path, validation_path, test_path, batch_size=batch_size)
+else:
+    print("No existing model and hyperparameters found. Performing random hyperparameter search...")
+    # Initialize the trainer and perform random hyperparameter search
+    trainer = TumourSegmentationTrainer()
+    best_hyperparameters = trainer.random_hyperparameter_search(train_loader, val_loader, test_loader)
+    with open(hyperparameters_path, 'w') as f:
+        json.dump(best_hyperparameters, f)
 
+    print("Best Hyperparameters:")
+    print(best_hyperparameters)
 
-    # Step 3: Define the model with the specified dropout rate
+    batch_size = best_hyperparameters['batch_size']
+    dropout_rate = best_hyperparameters['dropout_rate']
+    learning_rate = best_hyperparameters['learning_rate']
+
     model = CNNModel(num_classes, dropout_rate)
-
-    # Step 4: Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-    # Step 5: Initialize the learning rate scheduler
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
-
-    # Step 6: Initialize the trainer and start training
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     trainer = TumourSegmentationTrainer(model, train_loader, val_loader, test_loader, criterion, optimizer, device)
     trainer.train(num_epochs=num_epochs, log_interval=10)
 
-    # Step 7: Test the model on the test data
-    validation_loss = trainer.evaluate(val_loader)
+    # Save the trained model
+    torch.save(model.state_dict(), checkpoint_path)
+    print("Model and hyperparameters saved.")
 
-    # Print out the validation loss for each hyperparameter combination
-    print(f"Batch Size: {batch_size}, Dropout Rate: {dropout_rate}, Validation Loss: {validation_loss}")
-
-    # Update the best hyperparameters individually if the current hyperparameter performed better
-    if validation_loss < best_validation_loss:
-        best_batch_size = batch_size
-        best_dropout_rate = dropout_rate
-
-    best_validation_loss = min(best_validation_loss, validation_loss)
-
-# Print the best hyperparameters and corresponding validation loss
-print(f"Best Batch Size: {best_batch_size}, Best Dropout Rate: {best_dropout_rate}, Best Validation Loss: {best_validation_loss}")
+# Test the model on the test data
+final_test_accuracy = test_model(model, test_loader, device)
+print(f"Final Test Accuracy: {final_test_accuracy * 100:.2f}%")

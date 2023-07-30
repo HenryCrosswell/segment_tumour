@@ -151,7 +151,7 @@ def get_data_loaders(train_folder, validation_folder, test_data_folder, batch_si
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     return train_loader, val_loader, test_loader
-
+    
 class TumourSegmentationTrainer:
     """
     TumourSegmentationTrainer: Trainer class for training and testing the tumour segmentation model.
@@ -165,7 +165,7 @@ class TumourSegmentationTrainer:
         optimizer (torch.optim.Optimizer): Optimizer for training the model.
         device (str): Device to use for training ('cuda' or 'cpu').
     """
-    def __init__(self, model, train_loader, val_loader, test_loader, criterion, optimizer, device):
+    def __init__(self, model=None, train_loader=None, val_loader=None, test_loader=None, criterion=None, optimizer=None, device=None):
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -175,8 +175,59 @@ class TumourSegmentationTrainer:
         self.device = device
 
         # Move the model to the appropriate device
-        self.model.to(device)
+        if self.model and self.device:
+            self.model.to(device)
 
+    def random_hyperparameter_search(self, train_loader, val_loader, test_loader, num_epochs=10, num_iterations=10):
+        """
+        Perform random hyperparameter search.
+
+        Args:
+            train_loader (torch.utils.data.DataLoader): DataLoader for training data.
+            val_loader (torch.utils.data.DataLoader): DataLoader for validation data.
+            test_loader (torch.utils.data.DataLoader): DataLoader for test data.
+            num_epochs (int, optional): Number of training epochs for each hyperparameter combination. Default is 10.
+            num_iterations (int, optional): Number of random hyperparameter combinations to try. Default is 10.
+
+        Returns:
+            dict: Dictionary containing the best hyperparameters and corresponding test accuracy.
+        """
+        best_accuracy = 0.0
+        best_hyperparameters = {}
+
+        for _ in range(num_iterations):
+            # Sample random hyperparameters from the search space
+            batch_size = random.choice([16, 32, 64])
+            dropout_rate = random.choice([0.2, 0.4, 0.6])
+            learning_rate = random.uniform(0.0001, 0.01)
+
+            # Initialize the model with the random hyperparameters
+            model = CNNModel(num_classes=4, dropout_rate=dropout_rate)
+            criterion = nn.CrossEntropyLoss()
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+            # Initialize the trainer with the current hyperparameters
+            trainer = TumourSegmentationTrainer(model, train_loader, val_loader, test_loader, criterion, optimizer, device)
+
+            # Train the model
+            trainer.train(num_epochs=num_epochs)
+
+            # Evaluate the model on the test data
+            accuracy = trainer.test(test_loader)
+
+            # Update the best hyperparameters if the current hyperparameter combination performs better
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_hyperparameters = {
+                    "batch_size": batch_size,
+                    "dropout_rate": dropout_rate,
+                    "learning_rate": learning_rate,
+                    "test_accuracy": accuracy
+                }
+
+        return best_hyperparameters
+    
     def train(self, num_epochs=10, log_interval=10):
         """
         Train the tumour segmentation model.
@@ -205,11 +256,15 @@ class TumourSegmentationTrainer:
                 self.optimizer.step()
                 total_loss += loss.item()
 
+                if batch_idx % log_interval == 0:
+                    avg_loss = total_loss / (batch_idx + 1)
+                    train_bar.set_postfix({"Training Loss": avg_loss})
+
             avg_loss = total_loss / len(self.train_loader)
             logging.info(f"Epoch {epoch + 1} - Training Loss: {avg_loss}")
 
-            # Validation phase
-            val_loss = self.evaluate(self.val_loader)
+            # Validation phase (moved outside the training loop)
+            val_loss = self.evaluate_with_progress(self.val_loader, phase= 'Validation')
             logging.info(f"Epoch {epoch + 1} - Validation Loss: {val_loss}")
 
             # Early stopping
@@ -222,16 +277,13 @@ class TumourSegmentationTrainer:
                     logging.info("Early stopping triggered.")
                     break
 
-        # Save the trained model
-        torch.save(self.model.state_dict(), 'model.pth')
-        logging.info("Model saved.")
-
-    def evaluate(self, data_loader):
+    def evaluate_with_progress(self, data_loader, phase):
         """
-        Evaluate the model on a given data loader.
+        Evaluate the model on a given data loader with progress bar.
 
         Args:
             data_loader (torch.utils.data.DataLoader): DataLoader for evaluation data.
+            phase (str): Phase for the progress bar (e.g., "Validation" or "Testing").
 
         Returns:
             float: Average evaluation loss.
@@ -240,11 +292,14 @@ class TumourSegmentationTrainer:
         total_loss = 0.0
 
         with torch.no_grad():
-            for inputs, labels in data_loader:
+            eval_bar = tqdm(data_loader, desc=phase, ncols=80)
+            for inputs, labels in eval_bar:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.model(inputs)
                 loss = self.criterion(outputs, labels)
                 total_loss += loss.item()
+                avg_loss = total_loss / len(eval_bar)
+                eval_bar.set_postfix({f"{phase} Loss": avg_loss})
 
         avg_loss = total_loss / len(data_loader)
         return avg_loss
@@ -263,14 +318,51 @@ class TumourSegmentationTrainer:
         total_correct = 0
         total_samples = 0
 
+        test_bar = tqdm(test_loader, desc="Testing", ncols=80)
         with torch.no_grad():
-            for inputs, labels in test_loader:
+            for inputs, labels in test_bar:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.model(inputs)
                 _, predicted = torch.max(outputs, 1)  # Get the predicted class indices
                 total_correct += (predicted == labels.squeeze()).sum().item()
                 total_samples += labels.size(0)
 
+                # Update the progress bar with the current test accuracy
+                test_accuracy = total_correct / total_samples
+                test_bar.set_postfix({"Test Accuracy": f"{test_accuracy * 100:.2f}%"})
+
         accuracy = total_correct / total_samples
         logging.info(f"Test Accuracy: {accuracy * 100:.2f}%")
         return accuracy
+
+def test_model(trained_model, test_loader, device):
+    """
+    Evaluate the trained model on the test dataset.
+
+    Args:
+        trained_model (torch.nn.Module): Trained model to be evaluated.
+        test_loader (torch.utils.data.DataLoader): DataLoader for the test data.
+
+    Returns:
+        float: Test accuracy.
+    """
+    trained_model.eval()
+    total_correct = 0
+    total_samples = 0
+
+    test_bar = tqdm(test_loader, desc="Testing", ncols=80)
+    with torch.no_grad():
+        for inputs, labels in test_bar:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = trained_model(inputs)
+            _, predicted = torch.max(outputs, 1)  # Get the predicted class indices
+            total_correct += (predicted == labels.squeeze()).sum().item()
+            total_samples += labels.size(0)
+
+            # Update the progress bar with the current test accuracy
+            test_accuracy = total_correct / total_samples
+            test_bar.set_postfix({"Test Accuracy": f"{test_accuracy * 100:.2f}%"})
+
+    accuracy = total_correct / total_samples
+    logging.info(f"Test Accuracy: {accuracy * 100:.2f}%")
+    return accuracy
