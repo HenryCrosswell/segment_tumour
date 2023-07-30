@@ -1,17 +1,20 @@
 # Segment Tumour
 An automated tumour classification pipeline, using Pytorch
 
+## Techniques used
+Pytorch, unit testing, version control, hyperparameter searching, normalisation. 
+
 ## 
-Placeholder for project details and instructions
+Using the training and test images from ____ database.
 
+Clone this repo to a folder of your choosing, making sure the images are place within the repo. 
+Navigate to the 
 
+If a validation set is not already created, it will create anew, using 20% of the training images. 
 
+Afterwards the model will train itself on the images, saving itself to the folder along with the best hyperparameters. 
 
-
-
-
-
-
+Script can then be run again to test the model.
 
 # Project plan
 
@@ -22,7 +25,7 @@ Create a brain tumour segmentation pipeline utilising pytorch.
 ---
 Goals 
 ---
-- Create a tumour classifier with >80% accuracy
+- Create a tumour classifier with >70% accuracy
 - Ensure test-driven development
 - Deadline - 28/07/2023
 
