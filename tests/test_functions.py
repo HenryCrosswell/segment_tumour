@@ -1,41 +1,44 @@
 import os
-import glob
 import pytest
-
-from functions import make_val_dataset
+import shutil
+from tumour_segmentation import BrainTumourDataset, make_val_dataset
 
 @pytest.fixture
-def setup_test_environment(tmpdir):
-    # Create temporary training and validation directories
-    training_folder = tmpdir.mkdir("Training")
-    val_folder = tmpdir.mkdir("Validation")
+def sample_data_folder(tmpdir):
+    data_folder = tmpdir.mkdir("data")
+    image_folders = ['glioma', 'meningioma', 'notumor', 'pituitary']
+    for folder in image_folders:
+        folder_path = data_folder.mkdir(folder)
+        for i in range(5):
+            # Create dummy image files for testing
+            open(os.path.join(folder_path, f'image_{i}.jpg'), 'a').close()
+    return str(data_folder)
 
-    # Create sample image files in the temporary training directory
-    num_image_files = 20
-    for i in range(num_image_files):
-        class_folder = os.path.join(training_folder, f"Class_{i // 5}")
-        os.makedirs(class_folder, exist_ok=True)
-        image_file = os.path.join(class_folder, f"image_{i}.jpg")
-        with open(image_file, "w"):
-            pass
+def test_BrainTumourDataset(sample_data_folder):
+    dataset = BrainTumourDataset(sample_data_folder)
+    assert len(dataset) == 20  # 4 folders with 5 images each
 
-    return str(training_folder), str(val_folder)
+    image, label = dataset[0]
+    assert image.size == (224, 224)  # The image should be resized to (224, 224)
+    assert image.mode == 'L'  # The image should be converted to greyscale
 
-def test_make_val_dataset(setup_test_environment):
-    # Get the paths of the temporary training and validation folders
-    training_folder, val_folder = setup_test_environment
+def test_make_val_dataset(sample_data_folder):
+    data_folder = sample_data_folder
+    training_folder = os.path.join(data_folder, 'Training')
+    validation_folder = os.path.join(data_folder, 'Validation')
 
-    # Specify the validation split percentage for testing
-    val_split = 0.2
+    # Create a dummy Training folder
+    os.makedirs(training_folder, exist_ok=True)
+    for folder in ['glioma', 'meningioma', 'notumor', 'pituitary']:
+        folder_path = os.path.join(training_folder, folder)
+        os.makedirs(folder_path, exist_ok=True)
 
-    # Call the function to be tested
-    make_val_dataset(training_folder, val_split)
+    # Call the function to create the validation dataset
+    make_val_dataset(training_folder, 'glioma', 0.2)
 
-    # Check if the images are moved correctly
-    for class_folder in glob.glob(os.path.join(val_folder, "Class_*")):
-        class_files = os.listdir(class_folder)
-        assert len(class_files) == 4  # 20% of 20 image files is 4
+    # Assert that the validation folder and its content are created
+    assert os.path.exists(os.path.join(validation_folder, 'glioma'))
+    assert len(os.listdir(os.path.join(validation_folder, 'glioma'))) == 1
 
-    # Check if the images are removed from the training folder
-    training_files = glob.glob(os.path.join(training_folder, "**/*.jpg"), recursive=True)
-    assert len(training_files) == 16  # 20 - 4 = 16
+    # Clean up
+    shutil.rmtree(training_folder)
