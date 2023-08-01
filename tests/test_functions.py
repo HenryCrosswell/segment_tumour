@@ -1,7 +1,7 @@
 import os
 import pytest
 import shutil
-from tumour_segmentation import BrainTumourDataset, make_val_dataset
+from functions import BrainTumourDataset, make_val_dataset
 
 @pytest.fixture
 def sample_data_folder(tmpdir):

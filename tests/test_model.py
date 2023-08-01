@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
-from tumour_segmentation import CNNModel, TumourSegmentationTrainer, test_model, BrainTumourDataset
+from model import CNNModel, TumourSegmentationTrainer, test_model
+from functions import BrainTumourDataset
 
 def test_CNNModel():
     num_classes = 4
