@@ -2,28 +2,26 @@ import os
 import pytest
 import shutil
 from functions import BrainTumourDataset, make_val_dataset
+from pathlib import Path
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
 
-@pytest.fixture
-def sample_data_folder(tmpdir):
-    data_folder = tmpdir.mkdir("data")
-    image_folders = ['glioma', 'meningioma', 'notumor', 'pituitary']
-    for folder in image_folders:
-        folder_path = data_folder.mkdir(folder)
-        for i in range(5):
-            # Create dummy image files for testing
-            open(os.path.join(folder_path, f'image_{i}.jpg'), 'a').close()
-    return str(data_folder)
 
-def test_BrainTumourDataset(sample_data_folder):
-    dataset = BrainTumourDataset(sample_data_folder)
-    assert len(dataset) == 20  # 4 folders with 5 images each
+def test_BrainTumourDataset():
+
+    current_working_directory = Path.cwd()
+    test_data_folder = current_working_directory.joinpath('tests/test_data')
+
+    dataset = BrainTumourDataset(test_data_folder)
+
+    assert len(dataset) == 8  # 4 folders with 5 images each
 
     image, label = dataset[0]
-    assert image.size == (224, 224)  # The image should be resized to (224, 224)
+    assert image.size == (512, 512) 
     assert image.mode == 'L'  # The image should be converted to greyscale
+    assert label == 0
 
-def test_make_val_dataset(sample_data_folder):
-    data_folder = sample_data_folder
+def test_make_val_dataset(test_data_folder):
+    data_folder = test_data_folder
     training_folder = os.path.join(data_folder, 'Training')
     validation_folder = os.path.join(data_folder, 'Validation')
 
