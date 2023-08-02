@@ -43,32 +43,47 @@ class BrainTumourDataset(Dataset):
 
         return image, label
 
-def make_val_dataset(training_folder, data_folder, val_split):
+def create_validation_dataset(archive_path, validation_ratio=0.2):
     """
     Create a validation dataset from the training dataset.
 
     Args:
-        training_folder (str): Path to the folder containing the training data.
-        data_folder (str): Name of the data folder (class name).
-        val_split (float): Proportion of data to use for validation.
+        archive_path (str): Path to the main archive folder containing 'Training' and 'Testing' folders.
+        validation_ratio (float, optional): Proportion of data to use for validation (default is 0.2).
 
     Returns:
         None
     """
-    # Get image files
-    image_files = glob.glob(os.path.join(training_folder, data_folder, '*.jpg'))
-    num_val_images = int(len(image_files) * val_split)
+    training_folder = os.path.join(archive_path, 'Training')
+    validation_folder = os.path.join(archive_path, 'Validation')
 
-    # Create the validation directory
-    val_dir = os.path.join(training_folder, 'Validation', data_folder)
-    os.makedirs(val_dir, exist_ok=True)
+    # Create the validation folder if it doesn't exist
+    os.makedirs(validation_folder, exist_ok=True)
 
-    # Move the selected images to the validation directory
-    selected_images = random.sample(image_files, num_val_images)
-    for image_path in selected_images:
-        val_image_path = os.path.join(val_dir, os.path.basename(image_path))
-        shutil.move(image_path, val_image_path)
+    # Iterate over each subfolder in the training folder and create the corresponding validation subfolder
+    for folder in ['glioma', 'meningioma', 'notumor', 'pituitary']:
+        train_image_folder = os.path.join(training_folder, folder)
+        val_image_folder = os.path.join(validation_folder, folder)
 
+        # Create the validation subfolder if it doesn't exist
+        os.makedirs(val_image_folder, exist_ok=True)
+
+        # Get a list of image files in the training folder
+        image_files = os.listdir(train_image_folder)
+
+        # Calculate the number of images to move to the validation folder
+        num_val_images = int(len(image_files) * validation_ratio)
+
+        # Randomly select images to move
+        selected_images = random.sample(image_files, num_val_images)
+
+        # Move the selected images to the validation folder
+        for image_file in selected_images:
+            train_image_path = os.path.join(train_image_folder, image_file)
+            val_image_path = os.path.join(val_image_folder, image_file)
+            shutil.move(train_image_path, val_image_path)
+
+    print("Validation dataset created successfully.")
 def get_data_loaders(train_folder, validation_folder, test_data_folder, batch_size=32):
     """
     get_data_loaders: Load and prepare data loaders for training, validation, and testing.
