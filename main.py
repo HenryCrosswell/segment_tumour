@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from pathlib import Path
-from functions import make_val_dataset, get_data_loaders
+from functions import create_validation_dataset, get_data_loaders
 from model import CNNModel, TumourSegmentationTrainer, test_model
 import logging
 import os
@@ -28,7 +28,7 @@ training_path = archive_path.joinpath('Training')
 # If validation folder is not present, it moves 20% of training images for the validation set
 if not os.path.exists(validation_path):
     print("Validation folder not found. Creating it...")
-    make_val_dataset(archive_path, validation_ratio=0.2)
+    create_validation_dataset(archive_path, validation_ratio=0.2)
     print("Validation folder created.")
 else:
     print("Validation folder already exists.")
