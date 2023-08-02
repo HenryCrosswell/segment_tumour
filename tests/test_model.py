@@ -4,6 +4,8 @@ from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
 from model import CNNModel, TumourSegmentationTrainer, test_model
 from functions import BrainTumourDataset
+from pathlib import Path
+import os
 
 def test_CNNModel():
     num_classes = 4
@@ -21,7 +23,10 @@ def test_CNNModel():
         if isinstance(module, nn.Dropout2d):
             assert module.p == dropout_rate
 
-def test_TumourSegmentationTrainer(sample_data_folder):
+def test_TumourSegmentationTrainer():
+    
+    current_working_directory = Path.cwd()
+    sample_data_folder = current_working_directory.joinpath(Path('tests/test_data/Training'))
     # Sample hyperparameters for testing
     batch_size = 32
     dropout_rate = 0.2
@@ -53,7 +58,3 @@ def test_TumourSegmentationTrainer(sample_data_folder):
 
     # Ensure that the test accuracy is within a reasonable range (0 to 1)
     assert 0.0 <= accuracy <= 1.0
-
-if __name__ == '__main__':
-    test_CNNModel()
-    test_TumourSegmentationTrainer()
